@@ -80,10 +80,21 @@ define(["Node", "Token", "inst"], function (Node, Token, inst) {
                 // Suspend the machine so that the browser can get keys to us.
                 ctl.suspend();
 
-                // Ask the IDE to read a line for us.
-                ctl.readln(function (line) {
-                    ctl.push(line);
-                    ctl.resume();
+                // Ask the IDE to read a char for us.
+                var line = "";
+                ctl.readChar(function (ch) {
+                    if (ch === "\n" || ch === "\r") {
+                        ctl.push(line);
+                        ctl.resume();
+                        return false; // stop calling callback
+                    } else {
+                        if (ch === '\b') {
+                            line = line.slice(0, line.length - 1);
+                        } else {
+                            line += ch;
+                        }
+                    }
+                    return true; // keep calling callback
                 });
 
                 // We're a function, so we should return something, but we've

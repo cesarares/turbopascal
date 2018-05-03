@@ -7,7 +7,16 @@ define(["Node"], function (Node) {
             return ctl.keyPressed();
         });
         symbolTable.addNativeFunction("ReadKey", Node.charType, [], function (ctl) {
-            return ctl.readKey();
+            // Suspend the machine so that the browser can get keys to us.
+            ctl.suspend();
+
+            // set callback for read char
+            ctl.readChar(function (ch) {
+                        ctl.push(ch);
+                        ctl.resume();
+                        return false; // stop calling callback
+                });
+
         });
 
         // Sound functions.

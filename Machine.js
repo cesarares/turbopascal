@@ -86,9 +86,9 @@ define(["inst", "PascalError", "utils"], function (inst, PascalError, utils) {
                     self.outputCallback(line);
                 }
             },
-            // Read a line from the user. The parameter is a function that
-            // will be called with the line. The machine must first be suspended.
-            readln: function (callback) {
+            // Read a line char the user. The parameter is a function that
+            // will be called with the char. The machine must first be suspended.
+            readChar: function (callback) {
                 if (self.inputCallback !== null) {
                     self.inputCallback(callback);
                 } else {
@@ -170,9 +170,10 @@ define(["inst", "PascalError", "utils"], function (inst, PascalError, utils) {
                 setTimeout(stepAndTimeout, delay);
             }
         };
-
-        // Kick it off.
-        stepAndTimeout();
+        // Don't execute immediately. For two successive calls to ReadLn 
+        // (or Readkey) function, an immediately resume starts the execution 
+        // of second call when the first execution is pending in IDE
+        setTimeout(stepAndTimeout);
     };
 
     // Step "count" instructions. Does nothing if the program is stopped.

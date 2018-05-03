@@ -36,10 +36,6 @@ define(["Stream", "Token", "Lexer", "CommentStripper", "Parser",
         // Function to call when input is done (for INPUT_STRING).
         this.inputCallback = null;
 
-        // Input string being accumulated (for INPUT_STRING).
-        this.inputString = "";
-
-        // The actual text of the program in memory.
         this.source = "";
 
         // Shut down the editor when the user clicks on the "Close editor" link.
@@ -134,7 +130,6 @@ define(["Stream", "Token", "Lexer", "CommentStripper", "Parser",
     // Set the input mode (where the keyboard goes to).
     IDE.prototype._setInputMode = function (inputMode, inputCallback) {
         this.inputMode = inputMode;
-        this.inputString = "";
         this.inputCallback = inputCallback;
 
         // Suppress it if we're not in the editor.
@@ -171,19 +166,22 @@ define(["Stream", "Token", "Lexer", "CommentStripper", "Parser",
                 if (ch === "\n" || ch === "\r") {
                     this.screen.newLine();
                     if (this.inputCallback) {
-                        this.inputCallback(this.inputString);
+                        this.inputCallback(ch);
                     }
                 } else {
                     if (ch === "\b") {
                         // Backspace.
-                        if (this.inputString.length > 0) {
-                            this.inputString = this.inputString.slice(
-                                0, this.inputString.length - 1);
+                        //if (this.inputString.length > 0) {
+                            //this.inputString = this.inputString.slice(
+                            //    0, this.inputString.length - 1);
                             this.screen.removeLastChar();
-                        }
+                        //}
                     } else {
                         this.screen.printBold(ch);
-                        this.inputString += ch;
+                        //this.inputString += ch;
+                    }
+                     if (this.inputCallback) {
+                        this.inputCallback(ch);
                     }
                     this.screen.addCursor();
                 }
@@ -329,9 +327,9 @@ define(["Stream", "Token", "Lexer", "CommentStripper", "Parser",
             });
             machine.setInputCallback(function (callback) {
                 self.screen.addCursor();
-                self._setInputMode(INPUT_STRING, function (line) {
-                    self._setInputMode(INPUT_RUNNING);
-                    callback(line);
+                self._setInputMode(INPUT_STRING, function (ch) {
+                    if (!callback(ch))  // if return false => stop calling callback
+                        self._setInputMode(INPUT_RUNNING);
                 });
             });
 
